@@ -1,9 +1,12 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { autoUpdater } = require('electron-updater');
 const db = require('./db.cjs');
 const excel = require('./excel.cjs');
 const { maISO } = require('./datum.cjs');
+
+const KIADASOK_OLDAL = 'https://github.com/AnNFTcollector/Zsuzsa/releases/latest';
 
 let ablak = null;
 
@@ -125,6 +128,73 @@ function regisztralIpc() {
   });
 
   ipcMain.handle('app:adatbazisUtvonal', () => db.utvonal());
+  ipcMain.handle('app:verzio', () => app.getVersion());
+
+  // -- Frissítés (GitHub Releases) --
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = false;
+  autoUpdater.on('download-progress', (p) => {
+    if (ablak && !ablak.isDestroyed()) {
+      ablak.webContents.send('frissites:folyamat', Math.round(p.percent));
+    }
+  });
+
+  ipcMain.handle('frissites:ellenorzes', async () => {
+    if (!app.isPackaged) {
+      return { jelenlegi: app.getVersion(), fejlesztoiMod: true };
+    }
+    const eredmeny = await new Promise((resolve, reject) => {
+      const kesz = (fn) => (adat) => {
+        autoUpdater.removeAllListeners('update-available');
+        autoUpdater.removeAllListeners('update-not-available');
+        autoUpdater.removeAllListeners('error');
+        fn(adat);
+      };
+      autoUpdater.once('update-available', kesz((info) => resolve({ elerheto: info.version })));
+      autoUpdater.once('update-not-available', kesz(() => resolve({ elerheto: null })));
+      autoUpdater.once('error', kesz(reject));
+      autoUpdater.checkForUpdates().catch(kesz(reject));
+    });
+    return {
+      jelenlegi: app.getVersion(),
+      ...eredmeny,
+      // Aláíratlan macOS-alkalmazás nem tud helyben frissülni, ott a
+      // letöltési oldalt nyitjuk meg
+      telepitesTamogatott: process.platform === 'win32',
+    };
+  });
+
+  ipcMain.handle('frissites:telepites', async () => {
+    if (process.platform !== 'win32') {
+      await shell.openExternal(KIADASOK_OLDAL);
+      return { kezi: true };
+    }
+    // Biztonsági okból a telepítés előtt automatikus mentés készül
+    await automatikusMentes();
+    autoUpdater.once('update-downloaded', () => {
+      // Az adatbázist rendben lezárjuk, mielőtt a telepítő újraindítja az appot
+      setImmediate(() => {
+        db.bezar();
+        autoUpdater.quitAndInstall();
+      });
+    });
+    await autoUpdater.downloadUpdate();
+    return { letoltesElindult: true };
+  });
+
+  ipcMain.handle('frissites:letoltesOldal', () => shell.openExternal(KIADASOK_OLDAL));
+}
+
+// Automatikus biztonsági mentés a userData/mentesek mappába (max. 10 marad)
+async function automatikusMentes() {
+  const mappa = path.join(app.getPath('userData'), 'mentesek');
+  fs.mkdirSync(mappa, { recursive: true });
+  const idobelyeg = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+  await db.megnyitott().backup(path.join(mappa, `gepek-frissites-elott-${idobelyeg}.db`));
+  const fajlok = fs.readdirSync(mappa).filter((f) => f.endsWith('.db')).sort();
+  while (fajlok.length > 10) {
+    fs.unlinkSync(path.join(mappa, fajlok.shift()));
+  }
 }
 
 app.whenReady().then(() => {

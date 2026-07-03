@@ -25,4 +25,12 @@ contextBridge.exposeInMainWorld('api', {
   biztonsagiMentes: () => ipcRenderer.invoke('mentes:backup'),
   visszaallitas: () => ipcRenderer.invoke('mentes:restore'),
   adatbazisUtvonal: () => ipcRenderer.invoke('app:adatbazisUtvonal'),
+
+  // Frissítés
+  appVerzio: () => ipcRenderer.invoke('app:verzio'),
+  frissitesEllenorzes: () => ipcRenderer.invoke('frissites:ellenorzes'),
+  frissitesTelepites: () => ipcRenderer.invoke('frissites:telepites'),
+  letoltesOldalMegnyit: () => ipcRenderer.invoke('frissites:letoltesOldal'),
+  onFrissitesFolyamat: (cb) =>
+    ipcRenderer.on('frissites:folyamat', (_e, szazalek) => cb(szazalek)),
 });

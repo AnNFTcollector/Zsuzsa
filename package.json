@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",
+    "electron-updater": "^6.8.9",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -32,6 +33,11 @@
   "build": {
     "appId": "hu.zsuzsa.gepellenorzes",
     "productName": "Gepellenorzes",
+    "publish": {
+      "provider": "github",
+      "owner": "AnNFTcollector",
+      "repo": "Zsuzsa"
+    },
     "directories": {
       "output": "release"
     },

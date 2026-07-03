@@ -38,6 +38,13 @@ body {
   flex-wrap: wrap;
 }
 .fejlec h1 { margin: 0; font-size: 24px; font-weight: 600; }
+.verzio {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.75;
+  margin-left: 10px;
+  vertical-align: middle;
+}
 .fejlec-gombok { display: flex; gap: 10px; }
 .fejlec .gomb.masodlagos {
   background: rgba(255, 255, 255, 0.15);
@@ -305,3 +312,19 @@ input[type="checkbox"] { width: 22px; height: 22px; }
 }
 .osszefoglalo p { margin: 8px 0; }
 .osszefoglalo strong { font-size: 24px; color: var(--kek); }
+
+/* Frissítés folyamatjelző */
+.folyamat-sav {
+  height: 22px;
+  border-radius: 999px;
+  background: var(--hatter);
+  border: 1px solid var(--keret);
+  overflow: hidden;
+  margin-top: 16px;
+}
+.folyamat-kitoltes {
+  height: 100%;
+  background: var(--kek);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}

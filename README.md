@@ -92,6 +92,29 @@ Kipróbáláshoz a `pelda/minta-gepek.xlsx` fájl használható.
 - **Leselejtezés:** a gép nem törlődik, csak inaktív státuszba kerül
   (később újra aktiválható), és nem jelenik meg az esedékes listában.
 
+### Alkalmazás frissítése
+
+A fejlécben lévő **🔄 Frissítés** gomb megnézi, van-e újabb kiadás a
+projekt GitHub-oldalán (Releases):
+
+- **Windowson** a frissítés automatikusan letöltődik (folyamatjelzővel),
+  majd az alkalmazás újraindul az új verzióval.
+- **Macen** a letöltési oldal nyílik meg a böngészőben: az új .dmg-t kell
+  letölteni és az alkalmazást az Alkalmazások mappába húzni (a régit
+  felülírva).
+
+**Az adatok frissítéskor nem vesznek el:**
+
+- az adatbázis nem a program mappájában, hanem a felhasználói profilban
+  van (lásd fent), amihez a telepítő nem nyúl,
+- ráadásul Windowson a frissítés telepítése előtt az alkalmazás
+  **automatikus biztonsági mentést** készít a
+  `<felhasználói mappa>\Gepellenorzes\mentesek` mappába (az utolsó 10
+  mentés marad meg).
+
+A frissítés-kereséshez internetkapcsolat kell — minden más funkció
+offline működik.
+
 ### Biztonsági mentés és visszaállítás
 
 A fejléc jobb oldalán:
@@ -142,6 +165,29 @@ a natív SQLite modul miatt keresztplatformos buildhez az
 [electron-builder dokumentációja](https://www.electron.build/multi-platform-build)
 ad útmutatót. A macOS build alapból aláírás nélkül készül; ha van Apple
 Developer tanúsítvány, az electron-builder automatikusan használja.
+
+### Új verzió kiadása (a Frissítés gombhoz)
+
+Az alkalmazás a GitHub Releases-ből frissül (`electron-updater`).
+Új verzió kiadásának lépései:
+
+1. Emelje meg a verziószámot a `package.json`-ban (pl. `1.0.1`).
+2. Buildelje a telepítőt: `npm run dist` (Windowson).
+3. Hozzon létre a GitHub-on egy új Release-t `v1.0.1` taggel, és töltse
+   fel hozzá a `release/` mappából:
+   - `Gepellenorzes Setup 1.0.1.exe`
+   - `Gepellenorzes Setup 1.0.1.exe.blockmap`
+   - `latest.yml` ← **ez kötelező**, e nélkül a Frissítés gomb nem
+     találja meg az új verziót
+   - Mac esetén (`npm run dist:mac` után): a `.dmg` fájlokat is.
+4. Tegye közzé (Publish) a Release-t.
+
+Tokennel egy lépésben is megy:
+`GH_TOKEN=<github-token> npx electron-builder --win --publish always`
+
+**Fontos:** a frissítéshez a repónak **publikusnak** kell lennie, mert a
+felhasználók gépén futó alkalmazás hitelesítés nélkül kérdezi le a
+kiadásokat. Privát repó esetén a Frissítés gomb nem fog működni.
 
 ### Projektszerkezet
 
