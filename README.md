@@ -1,7 +1,7 @@
 # Gép-ellenőrzési nyilvántartás
 
-Magyar nyelvű asztali alkalmazás Windowsra, munkavédelmi gép-ellenőrzések
-nyilvántartásához. Konyhai és egyéb gépek időszakos (jellemzően 6 havonta
+Magyar nyelvű asztali alkalmazás Windowsra és macOS-re (MacBook),
+munkavédelmi gép-ellenőrzések nyilvántartásához. Konyhai és egyéb gépek időszakos (jellemzően 6 havonta
 esedékes) ellenőrzéseit tartja számon: megmutatja, mely gépek ellenőrzése
 esedékes az adott hónapban, és melyek csúsztak már le.
 
@@ -10,6 +10,8 @@ egy helyi SQLite adatbázis-fájlban tárolódik.
 
 ## Telepítés (felhasználóknak)
 
+### Windows
+
 1. Töltse le a telepítőt (`Gepellenorzes Setup 1.0.0.exe` a `release`
    mappából, vagy a kapott linkről).
 2. Indítsa el, és kövesse a telepítő lépéseit (a telepítési mappa
@@ -17,9 +19,26 @@ egy helyi SQLite adatbázis-fájlban tárolódik.
 3. A telepítés után az alkalmazás a Start menüből vagy az asztali
    **Gép-ellenőrzés** ikonnal indítható.
 
+### macOS (MacBook)
+
+1. Töltse le a lemezképet (`Gepellenorzes-1.0.0-arm64.dmg` újabb,
+   Apple Silicon / M-chipes MacBookhoz, `Gepellenorzes-1.0.0.dmg`
+   régebbi, Intel-es MacBookhoz).
+2. Nyissa meg a .dmg fájlt, és húzza az alkalmazást az **Applications**
+   (Alkalmazások) mappába.
+3. **Első indításkor:** mivel az alkalmazás nincs Apple fejlesztői
+   tanúsítvánnyal aláírva, a macOS figyelmeztetést mutathat. Ilyenkor
+   kattintson **jobb gombbal** (vagy Ctrl + kattintás) az alkalmazásra,
+   és válassza a **Megnyitás** menüpontot, majd erősítse meg. Ezt csak
+   egyszer kell megtenni. (Újabb macOS-en: Rendszerbeállítások →
+   Adatvédelem és biztonság → „Megnyitás mindenképp”.)
+
 **Fontos:** az adatbázis nem a program mappájában, hanem a felhasználói
-profilban tárolódik (`C:\Users\<felhasználó>\AppData\Roaming\Gepellenorzes\gepek.db`),
-így az alkalmazás frissítésekor (újratelepítésekor) **az adatok nem vesznek el**.
+profilban tárolódik, így az alkalmazás frissítésekor (újratelepítésekor)
+**az adatok nem vesznek el**:
+
+- Windows: `C:\Users\<felhasználó>\AppData\Roaming\Gepellenorzes\gepek.db`
+- macOS: `~/Library/Application Support/Gepellenorzes/gepek.db`
 
 ## Használat
 
@@ -105,17 +124,24 @@ Ha a modul az Electronhoz lett fordítva (a `postinstall` ezt teszi), a
 tesztek előtt futtassa: `npm rebuild better-sqlite3`, utána pedig
 `npx electron-builder install-app-deps` állítja vissza az Electron-verziót.
 
-### Windows telepítő készítése
+### Telepítő készítése
 
 ```bash
-npm run dist
+npm run dist       # Windows telepítő (.exe) – Windowson futtatandó
+npm run dist:mac   # macOS lemezkép (.dmg)  – Macen futtatandó
 ```
 
-A kész telepítő a `release/` mappába kerül
-(`Gepellenorzes Setup <verzió>.exe`). A build Windowson futtatható
-közvetlenül; Linux/macOS alól Windows-célra a
+A kész telepítők a `release/` mappába kerülnek:
+
+- Windows: `Gepellenorzes Setup <verzió>.exe`
+- macOS: `Gepellenorzes-<verzió>-arm64.dmg` (Apple Silicon / M-chip) és
+  `Gepellenorzes-<verzió>.dmg` (Intel)
+
+A macOS buildet Macen, a Windows buildet Windowson érdemes futtatni —
+a natív SQLite modul miatt keresztplatformos buildhez az
 [electron-builder dokumentációja](https://www.electron.build/multi-platform-build)
-szerint készíthető build.
+ad útmutatót. A macOS build alapból aláírás nélkül készül; ha van Apple
+Developer tanúsítvány, az electron-builder automatikusan használja.
 
 ### Projektszerkezet
 
