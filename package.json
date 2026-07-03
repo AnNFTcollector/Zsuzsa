@@ -1,0 +1,60 @@
+{
+  "name": "gep-ellenorzes",
+  "productName": "Gepellenorzes",
+  "version": "1.0.0",
+  "description": "Munkavédelmi gép-ellenőrzési nyilvántartás – magyar nyelvű asztali alkalmazás",
+  "author": "Zsuzsa",
+  "license": "MIT",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .\"",
+    "build": "vite build",
+    "dist": "vite build && electron-builder --win",
+    "postinstall": "electron-builder install-app-deps",
+    "teszt": "node scripts/teszt.cjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.4.19",
+    "wait-on": "^8.0.3"
+  },
+  "build": {
+    "appId": "hu.zsuzsa.gepellenorzes",
+    "productName": "Gepellenorzes",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Gép-ellenőrzés",
+      "language": "1038"
+    }
+  }
+}
