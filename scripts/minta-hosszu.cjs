@@ -95,20 +95,37 @@ for (let i = 0; i < 90; i++) {
 sorok.push(['Ipari mosogatógép', 'K-0001', 'Központi konyha', 'Konyhagép', '2026.06.20', 6, 'friss ellenőrzés']);
 sorok.push(['Hűtőkamra', 'K-0004', 'Raktár', 'Hűtéstechnika', '2026.06.25', 12, '']);
 
-// Hibás sorok -> hibalista tesztje
-sorok.push(['', 'K-9001', 'Központi konyha', 'Konyhagép', '2026.03.10', 6, 'HIBÁS: nincs gépnév']);
-sorok.push(['Próbagép — rossz dátum', 'K-9002', 'Raktár', 'Műhelygép', 'folyamatban', 6, 'HIBÁS: értelmezhetetlen dátum']);
-sorok.push(['Próbagép — rossz ciklus', 'K-9003', 'Műhely', 'Műhelygép', '2026.02.02', 'félévente', 'HIBÁS: értelmezhetetlen ciklus']);
-sorok.push(['Próbagép — dupla azonosító', 'K-0100', 'Raktár', 'Műhelygép', '2026.01.15', 6, 'HIBÁS: az azonosító már szerepel a fájlban']);
+// A hibás sorok javított megfelelői (a hibamentes változatba kerülnek)
+const javitottSorok = [
+  ['Zsírfogó tisztító', 'K-9001', 'Központi konyha', 'Konyhagép', '2026.03.10', 6, ''],
+  ['Ipari szárítógép', 'K-9002', 'Raktár', 'Műhelygép', '2026.04.18', 6, ''],
+  ['Csempemosó gép', 'K-9003', 'Karbantartó műhely', 'Műhelygép', '2026.02.02', 6, ''],
+  ['Állványos fúrógép', 'K-9004', 'Karbantartó műhely', 'Műhelygép', '2026.01.15', 6, ''],
+];
+
+// Hibás sorok -> hibalista tesztje (csak a hibás változatba kerülnek)
+const hibasSorok = [
+  ['', 'K-9001', 'Központi konyha', 'Konyhagép', '2026.03.10', 6, 'HIBÁS: nincs gépnév'],
+  ['Próbagép — rossz dátum', 'K-9002', 'Raktár', 'Műhelygép', 'folyamatban', 6, 'HIBÁS: értelmezhetetlen dátum'],
+  ['Próbagép — rossz ciklus', 'K-9003', 'Műhely', 'Műhelygép', '2026.02.02', 'félévente', 'HIBÁS: értelmezhetetlen ciklus'],
+  ['Próbagép — dupla azonosító', 'K-0100', 'Raktár', 'Műhelygép', '2026.01.15', 6, 'HIBÁS: az azonosító már szerepel a fájlban'],
+];
 
 const fejlec = ['Gép megnevezése', 'Leltári szám', 'Helyszín', 'Típus',
   'Utolsó ellenőrzés', 'Ciklus (hónap)', 'Megjegyzés'];
-const ws = XLSX.utils.aoa_to_sheet([fejlec, ...sorok]);
-ws['!cols'] = [26, 12, 22, 16, 18, 14, 34].map((w) => ({ wch: w }));
-const wb = XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(wb, ws, 'Gépek');
 
-const cel = path.join(__dirname, '..', 'pelda');
-fs.mkdirSync(cel, { recursive: true });
-XLSX.writeFile(wb, path.join(cel, 'teszt-gepek-hosszu.xlsx'));
-console.log(`Kész: pelda/teszt-gepek-hosszu.xlsx (${sorok.length} adatsor)`);
+function irFajl(fajlNev, adatsorok) {
+  const ws = XLSX.utils.aoa_to_sheet([fejlec, ...adatsorok]);
+  ws['!cols'] = [26, 12, 22, 16, 18, 14, 34].map((w) => ({ wch: w }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Gépek');
+  const cel = path.join(__dirname, '..', 'pelda');
+  fs.mkdirSync(cel, { recursive: true });
+  XLSX.writeFile(wb, path.join(cel, fajlNev));
+  console.log(`Kész: pelda/${fajlNev} (${adatsorok.length} adatsor)`);
+}
+
+// 1) Hibás sorokat is tartalmazó változat (a hibakezelés teszteléséhez)
+irFajl('teszt-gepek-hosszu.xlsx', [...sorok, ...hibasSorok]);
+// 2) Hibamentes, javított változat (minden sor gond nélkül importálható)
+irFajl('teszt-gepek-javitott.xlsx', [...sorok, ...javitottSorok]);
